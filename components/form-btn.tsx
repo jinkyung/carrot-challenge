@@ -11,7 +11,7 @@ export default function FormButton({ text }: FormButtonProps) {
   return (
     <button
       disabled={pending}
-      className="py-3 text-sm font-semibold rounded-full bg-neutral-100 disabled:bg-neutral-400 disabled:text-neutral-300 disabled:cursor-not-allowed hover:bg-neutral-200 focus:scale-90"
+      className="py-3 text-sm font-semibold transition rounded-full bg-neutral-100 disabled:bg-neutral-400 disabled:text-neutral-300 disabled:cursor-not-allowed hover:bg-neutral-200 focus:scale-90"
     >
       {pending ? "Loading..." : text}
     </button>
