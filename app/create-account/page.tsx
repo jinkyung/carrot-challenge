@@ -4,7 +4,6 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormState } from "react-dom";
 import { createAccount } from "./actions";
-import "@/lib/db";
 
 export default function CreateAccount() {
   const [state, dispatch] = useFormState(createAccount, null);
