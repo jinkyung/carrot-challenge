@@ -5,9 +5,7 @@ import { login } from "./actions";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import MailIcon from "@/components/icon/mail";
-import UserIcon from "@/components/icon/user";
 import KeyIcon from "@/components/icon/key";
-import CheckBadgeIcon from "@/components/icon/check-badge";
 import FireIcon from "@/components/icon/fire";
 
 export default function Login() {
@@ -24,15 +22,7 @@ export default function Login() {
           type="email"
           placeholder="Email"
           required
-          errors={state?.error?.fieldErrors.email}
-        />
-        <Input
-          icon={<UserIcon />}
-          name="username"
-          type="text"
-          placeholder="Username"
-          required
-          errors={state?.error?.fieldErrors.username}
+          errors={state?.fieldErrors.email}
         />
         <Input
           icon={<KeyIcon />}
@@ -40,15 +30,9 @@ export default function Login() {
           type="password"
           placeholder="Password"
           required
-          errors={state?.error?.fieldErrors.password}
+          errors={state?.fieldErrors.password}
         />
         <Button text="Log in" />
-        {state?.success ? (
-          <div className="flex items-center p-4 text-sm font-medium rounded-2xl bg-emerald-500 gap-x-4">
-            <CheckBadgeIcon />
-            Welcome back!
-          </div>
-        ) : null}
       </form>
     </div>
   );

@@ -2,15 +2,17 @@
 import bcrypt from "bcrypt";
 
 import {
+  EMAIL_REGEX,
+  EMAIL_REGEX_ERROR,
+  USERNAME_MIN_LENGTH,
   PASSWORD_MIN_LENGTH,
+  PASSWORD_REGEX,
+  PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-const checkUsername = (username: string) => !username.includes("potato");
+import getSession from "@/lib/session";
 
 const checkPasswords = ({
   password,
@@ -43,29 +45,41 @@ const checkUniqueEmail = async (email: string) => {
   });
   return Boolean(user) === false;
 };
-
 const formSchema = z
   .object({
-    username: z
-      .string({
-        invalid_type_error: "Username must be a string!",
-        required_error: "Where is my username???",
-      })
-      .toLowerCase()
-      .trim()
-      .refine(checkUsername, "No potatoes allowed!")
-      .refine(checkUniqueUsername, "This username is already taken"),
+    username: z.string().min(USERNAME_MIN_LENGTH).toLowerCase().trim(),
     email: z
       .string()
       .email()
-      .toLowerCase()
-      .refine(
-        checkUniqueEmail,
-        "There is an account already registered with that email."
-      ),
-    password: z.string().min(PASSWORD_MIN_LENGTH),
-    //.regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
-    confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
+      .regex(EMAIL_REGEX, EMAIL_REGEX_ERROR)
+      .toLowerCase(),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH)
+      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+    confirm_password: z.string(),
+  })
+  .superRefine(({ username }, ctx) => {
+    if (!checkUniqueUsername(username)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "This username is already taken",
+        path: ["username"],
+        fatal: true,
+      });
+      return z.NEVER;
+    }
+  })
+  .superRefine(({ email }, ctx) => {
+    if (!checkUniqueEmail(email)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "There is an account already registered with that email.",
+        path: ["email"],
+        fatal: true,
+      });
+      return z.NEVER;
+    }
   })
   .refine(checkPasswords, {
     message: "Both passwords should be the same!",
@@ -95,13 +109,9 @@ export async function createAccount(prevState: any, formData: FormData) {
       },
     });
     // log the user in
-    const cookie = await getIronSession(cookies(), {
-      cookieName: "delicious-karrot",
-      password: process.env.COOKIE_PASSWORD!,
-    });
-    //@ts-ignore
-    cookie.id = user.id;
-    await cookie.save();
+    const session = await getSession();
+    session.id = user.id;
+    await session.save();
     redirect("/profile");
   }
 }
