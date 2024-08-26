@@ -1,13 +1,6 @@
 "use server";
 import bcrypt from "bcrypt";
 
-import {
-  EMAIL_REGEX,
-  EMAIL_REGEX_ERROR,
-  PASSWORD_MIN_LENGTH,
-  PASSWORD_REGEX,
-  PASSWORD_REGEX_ERROR,
-} from "@/lib/constants";
 import db from "@/lib/db";
 
 import { z } from "zod";
