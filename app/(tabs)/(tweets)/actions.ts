@@ -4,6 +4,14 @@ import db from "@/lib/db";
 import { getUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+
+export type InitialTweets = Prisma.PromiseReturnType<typeof getTweets>;
+
+export async function getTweetCount() {
+  const tweetCount = await db.tweet.count();
+  return tweetCount;
+}
 
 export async function getTweets(page: number, pageSize = 3) {
   const tweets = await db.tweet.findMany({
@@ -19,6 +27,7 @@ export async function getTweets(page: number, pageSize = 3) {
       created_at: "desc",
     },
   });
+
   return tweets;
 }
 
@@ -49,7 +58,7 @@ export async function uploadTweet(prevState: any, formData: FormData) {
           id: true,
         },
       });
-      redirect(`/tweet/${tweet.id}`);
+      redirect("/");
     }
   }
 }

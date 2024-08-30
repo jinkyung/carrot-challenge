@@ -9,7 +9,7 @@ import { createAccount } from "./actions";
 export default function CreateAccount() {
   const [state, dispatch] = useFormState(createAccount, null);
   return (
-    <div className="flex flex-col w-full max-w-md gap-10 px-6 py-8 mx-auto mt-5">
+    <div className="flex flex-col w-full gap-10 px-6 py-8">
       <div className="flex flex-col gap-2 *:font-medium">
         <h1 className="text-2xl">안녕하세요!</h1>
         <h2 className="text-xl">Fill in the form below to join!</h2>

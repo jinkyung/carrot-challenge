@@ -12,7 +12,7 @@ import Link from "next/link";
 export default function Login() {
   const [state, dispatch] = useFormState(login, null);
   return (
-    <div className="flex flex-col w-full max-w-md gap-10 px-6 py-8 mx-auto mt-5">
+    <div className="flex flex-col w-full gap-10 px-6 py-8">
       <div className="flex justify-center">
         <FireIcon />
       </div>
