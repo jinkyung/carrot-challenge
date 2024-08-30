@@ -2,6 +2,7 @@
 
 import Button from "@/components/button";
 import Input from "@/components/input";
+import Link from "next/link";
 import { useFormState } from "react-dom";
 import { createAccount } from "./actions";
 
@@ -47,6 +48,13 @@ export default function CreateAccount() {
           errors={state?.fieldErrors.confirm_password}
         />
         <Button text="Create account" />
+        <div className="text-sm text-center">or</div>
+        <Link
+          href="/login"
+          className="py-3 text-sm font-semibold transition rounded-full bg-neutral-100 hover:bg-neutral-200 focus:scale-90 text-center"
+        >
+          Log in
+        </Link>
       </form>
     </div>
   );

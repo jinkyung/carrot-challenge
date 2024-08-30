@@ -7,6 +7,7 @@ import Input from "@/components/input";
 import MailIcon from "@/components/icon/mail";
 import KeyIcon from "@/components/icon/key";
 import FireIcon from "@/components/icon/fire";
+import Link from "next/link";
 
 export default function Login() {
   const [state, dispatch] = useFormState(login, null);
@@ -33,6 +34,13 @@ export default function Login() {
           errors={state?.fieldErrors.password}
         />
         <Button text="Log in" />
+        <div className="text-sm text-center">or</div>
+        <Link
+          href="/create-account"
+          className="py-3 text-sm font-semibold transition rounded-full bg-neutral-100 hover:bg-neutral-200 focus:scale-90 text-center"
+        >
+          Create Account
+        </Link>
       </form>
     </div>
   );
