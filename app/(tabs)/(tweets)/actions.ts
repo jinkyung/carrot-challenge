@@ -1,10 +1,8 @@
 "use server";
 
 import db from "@/lib/db";
-import { getUser } from "@/lib/session";
-import { redirect } from "next/navigation";
-import { z } from "zod";
 import { Prisma } from "@prisma/client";
+import { unstable_cache as nextCache } from "next/cache";
 
 export type InitialTweets = Prisma.PromiseReturnType<typeof getTweets>;
 
@@ -13,7 +11,14 @@ export async function getTweetCount() {
   return tweetCount;
 }
 
-export async function getTweets(page: number, pageSize = 3) {
+export async function getCachedTweetCount() {
+  const cachedOperation = nextCache(getTweetCount, ["get-tweet-count"],{
+    tags: [`get-tweet-count`]
+  })
+  return cachedOperation();
+}
+
+export async function getTweets(pageNo: number, pageSize = 3) {
   const tweets = await db.tweet.findMany({
     select: {
       id: true,
@@ -21,7 +26,7 @@ export async function getTweets(page: number, pageSize = 3) {
       created_at: true,
       user: true,
     },
-    skip: page * pageSize,
+    skip: pageNo * pageSize,
     take: pageSize,
     orderBy: {
       created_at: "desc",
@@ -31,34 +36,9 @@ export async function getTweets(page: number, pageSize = 3) {
   return tweets;
 }
 
-const formSchema = z.object({
-  tweet: z.string({ required_error: "tweet must not empty" }),
-});
-
-export async function uploadTweet(prevState: any, formData: FormData) {
-  const data = {
-    tweet: formData.get("tweet"),
-  };
-  const result = await formSchema.safeParse(data);
-  if (!result.success) {
-    return result.error.flatten();
-  } else {
-    const user = await getUser();
-    if (user) {
-      const tweet = await db.tweet.create({
-        data: {
-          tweet: result.data.tweet,
-          user: {
-            connect: {
-              id: user.id,
-            },
-          },
-        },
-        select: {
-          id: true,
-        },
-      });
-      redirect("/");
-    }
-  }
+export async function getCachedTweets(pageNo: number, pageSize: number) {
+  const cachedOperation = nextCache(getTweets, ["get-tweet-list"],{
+    tags: ['get-tweet-list']
+  })
+  return cachedOperation(pageNo, pageSize);
 }

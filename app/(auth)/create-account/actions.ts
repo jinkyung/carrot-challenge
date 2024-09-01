@@ -13,6 +13,7 @@ import db from "@/lib/db";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
+import { revalidateTag } from "next/cache";
 
 const checkPasswords = ({
   password,
@@ -112,6 +113,7 @@ export async function createAccount(prevState: any, formData: FormData) {
     const session = await getSession();
     session.id = user.id;
     await session.save();
+    revalidateTag("get-user");
     redirect("/");
   }
 }

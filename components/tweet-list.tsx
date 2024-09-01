@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getTweets, InitialTweets } from "@/app/(tabs)/(tweets)/actions";
+import { getCachedTweets, InitialTweets } from "@/app/(tabs)/(tweets)/actions";
 import Link from "next/link";
 import TweetListPlaceholder from "@/components/tweet-list-placeholder";
 import Tweet from "@/components/tweet";
@@ -22,7 +22,7 @@ export default function TweetList({
   const [isLoading, setIsLoading] = useState(false);
   const goPage = async (isNext: boolean) => {
     setIsLoading(true);
-    const newTweets = await getTweets(page + (isNext ? 1 : -1), pageSize);
+    const newTweets = await getCachedTweets(page + (isNext ? 1 : -1), pageSize);
     setTweets(newTweets);
     setPage((page) => page + (isNext ? 1 : -1));
     setIsLoading(false);

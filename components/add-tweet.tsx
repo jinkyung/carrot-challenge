@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadTweet } from "@/app/(tabs)/(tweets)/actions";
+import { uploadTweet } from "@/app/(tabs)/write/actions";
 import { useFormState } from "react-dom";
 import Input from "./input";
 import Button from "./button";

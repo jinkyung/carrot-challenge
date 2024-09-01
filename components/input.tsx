@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, ReactNode } from "react";
+import { forwardRef, InputHTMLAttributes, ReactNode, Ref } from "react";
 import cn from "classnames";
 
 interface InputProps {
@@ -7,18 +7,22 @@ interface InputProps {
   errors?: string[];
 }
 
-export default function Input({
-  icon,
-  name,
-  errors = [],
-  ...rest
-}: InputProps & InputHTMLAttributes<HTMLInputElement>) {
+function Input(
+  {
+    icon,
+    name,
+    errors = [],
+    ...rest
+  }: InputProps & InputHTMLAttributes<HTMLInputElement>,
+  ref: Ref<HTMLInputElement>
+) {
   return (
     <div className="relative flex flex-col gap-2">
       {icon ? (
         <span className="absolute text-gray-700 left-4 top-3">{icon}</span>
       ) : null}
       <input
+        ref={ref}
         className={cn(
           "w-full pr-4 h-10 text-gray-700 text-sm transition bg-transparent border rounded-full  focus:outline-none focus:ring-2 focus:ring-offset-1 placeholder:text-neutral-400",
           icon ? "pl-10" : "pl-4",
@@ -37,3 +41,5 @@ export default function Input({
     </div>
   );
 }
+
+export default forwardRef(Input);

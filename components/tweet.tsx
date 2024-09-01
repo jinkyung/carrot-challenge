@@ -5,7 +5,7 @@ export default function Tweet({
 }: {
   tweet: string;
   username?: string;
-  created_at: Date;
+  created_at: Date | string;
 }) {
   return (
     <div className="bg-neutral-100 w-full p-3 flex flex-col gap-3 rounded-md">
@@ -19,7 +19,9 @@ export default function Tweet({
           </>
         ) : null}
         <span>at</span>
-        <span className="text-gray-700">{created_at.toLocaleDateString()}</span>
+        <span className="text-gray-700">
+          {new Date(created_at).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );

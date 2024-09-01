@@ -1,49 +1,44 @@
-import db from "@/lib/db";
 import { notFound } from "next/navigation";
+import { getSession, getUser } from "@/lib/session";
+import {
+  getCachedTweet,
+  getCachedLikeStatus,
+  getCachedComments,
+} from "./actions";
 import Tweet from "@/components/tweet";
+import TweetListPlaceholder from "@/components/tweet-list-placeholder";
 import Like from "@/components/like";
-import { getSession } from "@/lib/session";
-import { unstable_cache as nextCache } from "next/cache";
+import CommentList from "@/components/comment-list";
+import CommentListPlaceholder from "@/components/comment-list-placeholder";
+import { Suspense } from "react";
+import LikePlaceholder from "@/components/like-placeholder";
 
-async function getTweet(id: number) {
-  const tweet = await db.tweet.findUnique({
-    where: { id },
-    include: {
-      user: {
-        select: {
-          username: true,
-        },
-      },
-    },
-  });
-  return tweet;
+async function TweetWithData({ id }: { id: number }) {
+  const tweet = await getCachedTweet(id);
+  if (!tweet) {
+    return notFound();
+  }
+  return (
+    <Tweet
+      tweet={tweet.tweet}
+      username={tweet.user?.username}
+      created_at={tweet.created_at}
+    />
+  );
 }
 
-async function getLikeStatus(tweetId: number, userId: number) {
-  const isLiked = await db.like.findUnique({
-    where: {
-      id: {
-        tweetId,
-        userId,
-      },
-    },
-  });
-  const likeCount = await db.like.count({
-    where: {
-      tweetId,
-    },
-  });
-  return {
-    likeCount,
-    isLiked: Boolean(isLiked),
-  };
+async function LikeWithData({ id }: { id: number }) {
+  const session = await getSession();
+  const { likeCount, isLiked } = await getCachedLikeStatus(id, session.id!);
+  return <Like isLiked={isLiked} likeCount={likeCount} tweetId={id} />;
 }
 
-function getCachedLikeStatus(tweetId: number, userId: number) {
-  const cachedOperation = nextCache(getLikeStatus, ["tweet-like-status"], {
-    tags: [`like-status-${tweetId}`],
-  });
-  return cachedOperation(tweetId, userId);
+async function CommentWithData({ id }: { id: number }) {
+  const comments = await getCachedComments(id);
+  const user = await getUser();
+  return (
+    <CommentList tweetId={id} comments={comments} username={user?.username} />
+  );
 }
 
 export default async function TweetDetail({
@@ -55,21 +50,21 @@ export default async function TweetDetail({
   if (isNaN(id)) {
     return notFound();
   }
-  const tweet = await getTweet(id);
-  if (!tweet) {
-    return notFound();
-  }
-  const session = await getSession();
-  const { likeCount, isLiked } = await getCachedLikeStatus(id, session.id!);
   return (
     <main className="flex flex-col w-full gap-10 px-6 py-8">
-      <Tweet
-        tweet={tweet.tweet}
-        username={tweet.user?.username}
-        created_at={tweet.created_at}
-      />
       <div>
-        <Like isLiked={isLiked} likeCount={likeCount} tweetId={id} />
+        <h1 className="font-bold text-xl mb-1.5">Tweet</h1>
+        <Suspense fallback={<TweetListPlaceholder pageSize={1} />}>
+          <TweetWithData id={id} />
+        </Suspense>
+      </div>
+      <div className="flex flex-col gap-3">
+        <Suspense fallback={<LikePlaceholder />}>
+          <LikeWithData id={id} />
+        </Suspense>
+        <Suspense fallback={<CommentListPlaceholder />}>
+          <CommentWithData id={id} />
+        </Suspense>
       </div>
     </main>
   );
